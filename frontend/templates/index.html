@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TalentTrac{% endblock %}
+
+{% block content %}
+<!-- Two-column layout -->
+<div class="flex flex-col md:flex-row gap-6">
+    <!-- Left column: Filter section -->
+    <div class="md:w-1/4 w-full">
+        <div class="bg-white shadow rounded-lg p-4">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Filters</h2>
+            
+            <form id="filter-form" action="/" method="get">
+                <!-- Search filters -->
+                <div class="mb-4">
+                  <div class="relative">
+                      <input type="text" name="search" placeholder="Search filters (disabled)" value="{{ search_term }}"
+                             class="w-full rounded-md border border-gray-300 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             disabled>
+                      <svg class="absolute right-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                  </div>
+              </div>
+                
+                <!-- Items per page -->
+                <div class="mb-6">
+                    <label for="items-per-page" class="block text-sm font-medium text-gray-700 mb-1">Items per page</label>
+                    <select id="items-per-page" name="items_per_page" class="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="24" {% if items_per_page == 24 %}selected{% endif %}>24</option>
+                        <option value="48" {% if items_per_page == 48 %}selected{% endif %}>48</option>
+                        <option value="96" {% if items_per_page == 96 %}selected{% endif %}>96</option>
+                    </select>
+                </div>
+                
+                <!-- Sort by School -->
+                <div class="mb-6">
+                    <label for="school-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by School</label>
+                    <select id="school-filter" name="school" class="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" {% if not school_filter %}selected{% endif %}>All Schools</option>
+                        {% for school in schools %}
+                            <option value="{{ school }}" {% if school_filter == school %}selected{% endif %}>{{ school }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Sort by Workplace -->
+                <div class="mb-6">
+                    <label for="workplace-filter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Workplace</label>
+                    <select id="workplace-filter" name="workplace" class="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" {% if not workplace_filter %}selected{% endif %}>All Workplaces</option>
+                        {% for workplace in workplaces %}
+                            <option value="{{ workplace }}" {% if workplace_filter == workplace %}selected{% endif %}>{{ workplace }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Apply filters button -->
+                <div class="mb-6">
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">
+                        Apply Filters
+                    </button>
+                </div>
+                
+                <!-- Hidden input for pagination -->
+                <input type="hidden" name="page" id="page-input" value="{{ page }}">
+                
+                <!-- Reset filters link -->
+                <div class="text-center">
+                    <a href="/" class="text-sm text-blue-600 hover:text-blue-800">Reset all filters</a>
+                </div>
+            </form>
+            
+            <!-- Additional filter options -->
+            <div class="mt-6 mb-4">
+                <h3 class="text-md font-medium text-gray-700 mb-2">Statistics</h3>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="bg-blue-50 p-2 rounded">
+                        <p class="text-blue-800 font-medium">{{ stats.profile_count }}</p>
+                        <p class="text-blue-600">Profiles</p>
+                    </div>
+                    <div class="bg-green-50 p-2 rounded">
+                        <p class="text-green-800 font-medium">{{ stats.position_count }}</p>
+                        <p class="text-green-600">Positions</p>
+                    </div>
+                    <div class="bg-purple-50 p-2 rounded">
+                        <p class="text-purple-800 font-medium">{{ stats.education_count }}</p>
+                        <p class="text-purple-600">Educations</p>
+                    </div>
+                    <div class="bg-yellow-50 p-2 rounded">
+                        <p class="text-yellow-800 font-medium">{{ stats.skill_count }}</p>
+                        <p class="text-yellow-600">Skills</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right column: Candidate cards -->
+    <div class="md:w-3/4 w-full">
+        <!-- Candidate cards section header -->
+        <div class="bg-white shadow rounded-lg p-4 mb-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Candidates</h2>
+                <span class="text-sm text-gray-500">Showing {{ candidates|length }} of {{ total_count }} candidates</span>
+            </div>
+        </div>
+        
+        <!-- Cards grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% if candidates %}
+                {% for candidate in candidates %}
+                <a href="{{ url_for('candidate_detail', user_id=candidate.user_id) }}" class="block h-full">
+                    <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-300 h-full flex flex-col">
+                        <div class="p-4 flex-grow flex flex-col">
+                            <!-- Profile info section -->
+                            <div class="flex items-start mb-3">
+                                <!-- Profile picture placeholder -->
+                                <div class="rounded-full h-16 w-16 bg-gray-300 mr-4 flex-shrink-0"></div>
+                                
+                                <div class="flex-grow min-w-0">
+                                    <h3 class="font-medium text-gray-900 truncate">{{ candidate.firstname }} {{ candidate.lastname }}</h3>
+                                    
+                                    <!-- Latest workplace and school -->
+                                    {% if candidate.latest_companyname %}
+                                        <p class="text-sm text-gray-600 truncate">{{ candidate.latest_companyname }}</p>
+                                    {% endif %}
+                                    
+                                    {% if candidate.latest_schoolname %}
+                                        <p class="text-sm text-gray-600 truncate">{{ candidate.latest_schoolname }}</p>
+                                    {% endif %}
+                                    
+                                    <!-- Location -->
+                                    {% if candidate.city or candidate.country %}
+                                        <p class="text-xs text-gray-500 mt-1 truncate">
+                                            {% if candidate.city %}{{ candidate.city }}{% endif %}
+                                            {% if candidate.city and candidate.country %}, {% endif %}
+                                            {% if candidate.country %}{{ candidate.country }}{% endif %}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <!-- Skills tags -->
+                                {% if candidate.skill_tags %}
+                                    <div class="flex flex-wrap">
+                                        {% for skill in candidate.skill_tags %}
+                                            <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium mr-2 mb-2 px-2.5 py-0.5 rounded">
+                                                {{ skill }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Awards/honors -->
+                                {% if candidate.award_titles %}
+                                    <div class="mt-2">
+                                        {% for award in candidate.award_titles %}
+                                            <p class="text-xs text-gray-700">🏆 {{ award }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="col-span-full bg-white shadow rounded-lg p-6 text-center">
+                    <p class="text-gray-500">No candidates found matching your criteria.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Pagination controls -->
+        {% if total_pages > 1 %}
+            <div class="mt-6 flex justify-between items-center bg-white rounded-lg shadow p-4">
+                <button id="prev-page" 
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md {% if page == 1 %}opacity-50 cursor-not-allowed{% else %}hover:bg-gray-300{% endif %}" 
+                        {% if page == 1 %}disabled{% endif %}>
+                    Previous
+                </button>
+                
+                <span class="text-gray-600">
+                    Page {{ page }} of {{ total_pages }}
+                </span>
+                
+                <button id="next-page" 
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md {% if page >= total_pages %}opacity-50 cursor-not-allowed{% else %}hover:bg-gray-300{% endif %}" 
+                        {% if page >= total_pages %}disabled{% endif %}>
+                    Next
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get elements
+        const filterForm = document.getElementById('filter-form');
+        const pageInput = document.getElementById('page-input');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const itemsPerPage = document.getElementById('items-per-page');
+        const schoolFilter = document.getElementById('school-filter');
+        const workplaceFilter = document.getElementById('workplace-filter');
+        
+        // Pagination buttons
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', function() {
+                const currentPage = parseInt("{{ page }}");
+                if (currentPage > 1) {
+                    pageInput.value = currentPage - 1;
+                    filterForm.submit();
+                }
+            });
+        }
+        
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', function() {
+                const currentPage = parseInt("{{ page }}");
+                const totalPages = parseInt("{{ total_pages }}");
+                if (currentPage < totalPages) {
+                    pageInput.value = currentPage + 1;
+                    filterForm.submit();
+                }
+            });
+        }
+        
+        // Auto-submit form when changing select values
+        const autoSubmitSelects = [itemsPerPage, schoolFilter, workplaceFilter];
+        autoSubmitSelects.forEach(select => {
+            if (select) {
+                select.addEventListener('change', function() {
+                    // Reset to page 1 when changing filters
+                    pageInput.value = 1;
+                    filterForm.submit();
+                });
+            }
+        });
+    });
+</script>
+{% endblock %} 

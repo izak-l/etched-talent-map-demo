@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Profiles - LinkedIn Profiles Dashboard{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">LinkedIn Profiles</h2>
+        
+        <div class="relative">
+            <input type="text" id="search-input" placeholder="Search profiles..." class="border rounded-lg py-2 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <svg class="absolute right-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+    </div>
+    
+    {% if profiles %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Headline</th>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" id="profiles-table-body">
+                    {% for profile in profiles %}
+                    <tr class="profile-row hover:bg-gray-50">
+                        <td class="py-4 px-4">
+                            <div class="flex items-center">
+                                <div class="ml-0">
+                                    <div class="text-sm font-medium text-gray-900">{{ profile.firstname }} {{ profile.lastname }}</div>
+                                    <div class="text-sm text-gray-500">ID: {{ profile.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="text-sm text-gray-900">{{ profile.headline }}</div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="text-sm text-gray-900">
+                                {% if profile.city %}{{ profile.city }}{% endif %}
+                                {% if profile.city and profile.country %}, {% endif %}
+                                {% if profile.country %}{{ profile.country }}{% endif %}
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <a href="{{ url_for('profiles') }}/{{ profile.id }}" class="text-blue-600 hover:text-blue-900">View Details</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-6">
+            <p class="text-gray-500">No profiles found in the database.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Simple client-side search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const profileRows = document.querySelectorAll('.profile-row');
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            profileRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

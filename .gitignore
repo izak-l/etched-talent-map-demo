@@ -1,0 +1,11 @@
+misc/
+.DS_Store
+frontend/pyenv.cfg
+frontend/lib/
+frontend/bin/
+scripts/pyenv.cfg
+scripts/lib/
+scripts/bin/
+.env
+scripts/linkedin_urls.txt
+scripts/results/
