@@ -9,7 +9,11 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div class="flex items-start">
                 <!-- Profile picture placeholder -->
-                <div class="rounded-full h-24 w-24 bg-gray-200 mr-6 flex-shrink-0"></div>
+                <div class="rounded-full h-24 w-24 bg-gray-200 mr-6 flex-shrink-0 flex items-center justify-center">
+                    <svg class="h-12 w-12 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
                 
                 <div>
                     <h1 class="text-3xl font-bold">{{ candidate.firstname }} {{ candidate.lastname }}</h1>
