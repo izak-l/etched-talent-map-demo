@@ -8,7 +8,7 @@ from psycopg2.extras import Json
 from datetime import datetime
 from dotenv import load_dotenv
 
-# DB config
+# DB config (supabase)
 load_dotenv()
 
 # Directory with JSON files
@@ -20,8 +20,15 @@ def connect_to_db():
     """Establish connection to PostgreSQL database"""
     try:
         conn = psycopg2.connect(
-            os.getenv("SUPABASE_DB_URL")
+            host=os.getenv("LOCAL_DB_HOST"),
+            port=os.getenv("LOCAL_DB_PORT"),
+            database=os.getenv("LOCAL_DB_NAME"),
+            user=os.getenv("LOCAL_DB_USER"),
+            password=os.getenv("LOCAL_DB_PASSWORD")
         )
+        # conn = psycopg2.connect( # remote connection
+        #     os.getenv("SUPABASE_DB_URL")
+        # )
         return conn
     except Exception as e:
         print(f"Error connecting to the database: {e}")
