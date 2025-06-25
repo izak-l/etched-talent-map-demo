@@ -9,3 +9,4 @@ scripts/bin/
 .env
 scripts/linkedin_urls.txt
 scripts/results/
+__pycache__
